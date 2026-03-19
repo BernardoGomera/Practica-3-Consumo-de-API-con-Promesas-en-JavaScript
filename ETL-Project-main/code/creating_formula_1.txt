@@ -1,0 +1,181 @@
+-- MySQL Workbench Forward Engineering
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+-- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
+-- Schema formula_1
+-- -----------------------------------------------------
+
+-- -----------------------------------------------------
+-- Schema formula_1
+-- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `formula_1` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci ;
+USE `formula_1` ;
+
+-- -----------------------------------------------------
+-- Table `formula_1`.`circuits`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `formula_1`.`circuits` (
+  `circuitId` INT NOT NULL,
+  `circuitRef` VARCHAR(12) NULL DEFAULT NULL,
+  `name` VARCHAR(100) NULL DEFAULT NULL,
+  `location` VARCHAR(50) NULL DEFAULT NULL,
+  `country` VARCHAR(50) NULL DEFAULT NULL,
+  `lat` FLOAT NULL DEFAULT NULL,
+  `lng` FLOAT NULL DEFAULT NULL,
+  `alt` FLOAT NULL DEFAULT NULL,
+  PRIMARY KEY (`circuitId`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `formula_1`.`constructors`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `formula_1`.`constructors` (
+  `constructorId` INT NOT NULL,
+  `constructorRef` VARCHAR(20) NULL DEFAULT NULL,
+  `name` VARCHAR(50) NULL DEFAULT NULL,
+  `nationality` VARCHAR(20) NULL DEFAULT NULL,
+  PRIMARY KEY (`constructorId`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `formula_1`.`drivers`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `formula_1`.`drivers` (
+  `driverId` INT NOT NULL,
+  `driver` VARCHAR(50) NULL DEFAULT NULL,
+  `nationality` VARCHAR(20) NULL DEFAULT NULL,
+  `dob` DATE NULL DEFAULT NULL,
+  PRIMARY KEY (`driverId`))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `formula_1`.`races`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `formula_1`.`races` (
+  `raceId` INT NOT NULL,
+  `year` INT NULL DEFAULT NULL,
+  `round` INT NULL DEFAULT NULL,
+  `name` VARCHAR(100) NULL DEFAULT NULL,
+  `date` DATE NULL DEFAULT NULL,
+  `time` INT NULL DEFAULT NULL,
+  `circuitId` INT NOT NULL,
+  PRIMARY KEY (`raceId`),
+  INDEX `circuitId_idx` (`circuitId` ASC) VISIBLE,
+  CONSTRAINT `circuitId`
+    FOREIGN KEY (`circuitId`)
+    REFERENCES `formula_1`.`circuits` (`circuitId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `formula_1`.`lap_times`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `formula_1`.`lap_times` (
+  `lapId` INT NOT NULL,
+  `lap` INT NULL,
+  `position` INT NULL DEFAULT NULL,
+  `time` INT NULL DEFAULT NULL,
+  `milliseconds` INT NULL DEFAULT NULL,
+  `raceId` INT NOT NULL,
+  `driverId` INT NOT NULL,
+  PRIMARY KEY (`lapId`),
+  INDEX `raceId_idx` (`raceId` ASC) VISIBLE,
+  INDEX `driverId_idx` (`driverId` ASC) VISIBLE,
+  CONSTRAINT `raceId`
+    FOREIGN KEY (`raceId`)
+    REFERENCES `formula_1`.`races` (`raceId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `driverId`
+    FOREIGN KEY (`driverId`)
+    REFERENCES `formula_1`.`drivers` (`driverId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `formula_1`.`qualifying`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `formula_1`.`qualifying` (
+  `qualifyId` INT NOT NULL,
+  `number` INT NULL DEFAULT NULL,
+  `position` INT NULL DEFAULT NULL,
+  `q1` VARCHAR(12) NULL DEFAULT NULL,
+  `q2` VARCHAR(12) NULL DEFAULT NULL,
+  `q3` VARCHAR(12) NULL DEFAULT NULL,
+  `raceId` INT NOT NULL,
+  `driverId` INT NOT NULL,
+  `constructorId` INT NOT NULL,
+  PRIMARY KEY (`qualifyId`),
+  INDEX `raceId_idx` (`raceId` ASC) VISIBLE,
+  INDEX `driverId_idx` (`driverId` ASC) VISIBLE,
+  INDEX `constructorId_idx` (`constructorId` ASC) VISIBLE,
+  CONSTRAINT `raceId`
+    FOREIGN KEY (`raceId`)
+    REFERENCES `formula_1`.`races` (`raceId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `driverId`
+    FOREIGN KEY (`driverId`)
+    REFERENCES `formula_1`.`drivers` (`driverId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `constructorId`
+    FOREIGN KEY (`constructorId`)
+    REFERENCES `formula_1`.`constructors` (`constructorId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+-- -----------------------------------------------------
+-- Table `formula_1`.`safety_car`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `formula_1`.`safety_car` (
+  `safetyId` INT NOT NULL,
+  `grand_prix` VARCHAR(100) NULL,
+  `cause` VARCHAR(50) NULL DEFAULT NULL,
+  `deployed_lap` INT NULL DEFAULT NULL,
+  `called_in_lap` INT NULL DEFAULT NULL,
+  `number_of_full_laps` INT NULL DEFAULT NULL,
+  `year` INT NULL DEFAULT NULL,
+  `circuitId` INT NOT NULL,
+  PRIMARY KEY (`safetyId`),
+  INDEX `circuitId_idx` (`circuitId` ASC) VISIBLE,
+  CONSTRAINT `circuitId`
+    FOREIGN KEY (`circuitId`)
+    REFERENCES `formula_1`.`circuits` (`circuitId`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb4
+COLLATE = utf8mb4_0900_ai_ci;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
